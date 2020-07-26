@@ -12,9 +12,10 @@ class DeliveryForm extends React.Component {
 
         this.state = {
             number: '',
-            date: new Date(),
+            date: '',
             type: '',
-            errorMsg: ''
+            selectedOption: {label: '', value: ''},
+            requestMsg: ''
         };
 
         this.selectedOption = {label: '', value: ''}
@@ -64,19 +65,37 @@ class DeliveryForm extends React.Component {
     }
 
     handleSubmit(e) {
-        // alert('Принята поставка с номером: ' + this.state.number + ', датой: ' +
-        //     this.state.date + ', типом: ' + this.state.type);
+        alert('Принята поставка с номером: ' + this.state.number + ', датой: ' +
+            this.state.date + ', типом: ' + this.state.type);
         e.preventDefault();
 
         DeliveryService.addDelivery(this.state.number, this.state.date, this.state.type)
-            .catch(err => {
-                this.setState({errorMsg: err.message});
+            .then((response) => {
+                console.log('Успешно!')
+                this.setState({
+                    requestMsg: 'Успешно!'
+                });
+            }, (error) => {
+                console.log('Ошибка')
+                this.setState({
+                    requestMsg: 'Ошибка'
+                });
             });
+
+        this.setState({
+            number: '',
+            date: '',
+            type: ''
+        });
+
+        this.selectedOption.label = '';
+        this.selectedOption.value = '';
     }
+
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit}>
+            <form id="delivery-form" onSubmit={this.handleSubmit} autocomplete="off">
                 <label>
                     Номер поставки:
                     <br/>
@@ -92,6 +111,7 @@ class DeliveryForm extends React.Component {
                     <DatePicker
                         name="date"
                         selected={this.state.date}
+                        type="hidden"
                         onChange={this.handleDateChange}
                         dateFormat="dd/MM/yyyy"
                     />
@@ -107,7 +127,8 @@ class DeliveryForm extends React.Component {
                         options={this.options}/>
                 </label>
                 <br/>
-                {this.state.errorMsg}
+                {/*<span>{this.state.requestMsg}</span>*/}
+                <br/>
                 <Button outline color="primary" type="submit">Отправить</Button>
             </form>
         );
